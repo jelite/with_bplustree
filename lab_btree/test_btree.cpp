@@ -14,6 +14,12 @@ void do_inserts(vector<pair<K, V>>& data, BTree<K, V>& b)
 }
 
 template <class K, class V>
+void print_tree(BTree<K, V>& b)
+{
+    b.print();
+}
+
+template <class K, class V>
 void verify_finds(vector<pair<K, V>>& data, BTree<K, V>& b)
 {
     for (auto& key_val : data) {
@@ -58,6 +64,7 @@ void small_btree_small_order()
         = {{1, 5}, {4, 7}, {5, 43}, {-43, 3}, {99, 2}, {23, 7}, {3, 2}, {9, 4}};
     BTree<int, int> b(3);
     do_inserts(data, b);
+    print_tree(b);
     verify_finds(data, b);
     b.find(-999);
     b.is_valid(3);
@@ -105,6 +112,7 @@ void generic_test(int order, int n)
     cout << "Testing sequential data..." << endl;
     auto data = make_int_data(n, false);
     do_inserts(data, b);
+    print_tree(b);
     verify_finds(data, b);
     cout << "BTree is valid? " << b.is_valid(order) << endl;
     b.clear();

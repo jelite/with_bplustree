@@ -12,6 +12,7 @@
 #define BTREE_H
 
 #include <vector>
+#include <queue>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -281,6 +282,13 @@ class BTree
      */
     V find(const K& key) const;
 
+    /**
+     * prints tree
+    */
+    void print();
+
+    void print_node(BTreeNode* node);
+
   private:
     /**
      * Private recursive version of the insert function.
@@ -328,6 +336,12 @@ class BTree
      */
     bool is_valid(const BTreeNode* subroot, std::vector<DataPair>& data,
                   unsigned int order) const;
+
+    /**
+     * Private reculsize version of the print function
+     * @param subroot A reference of a pointer to the current BTreeNode.
+    */
+    void print(BTreeNode* subroot);
 };
 
 template <class T, class C>

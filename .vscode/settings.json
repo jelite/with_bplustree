@@ -64,6 +64,7 @@
         "__config": "cpp",
         "__hash_table": "cpp",
         "__tree": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "set": "cpp"
     }
 }
