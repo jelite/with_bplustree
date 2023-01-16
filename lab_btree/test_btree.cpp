@@ -19,6 +19,7 @@ void print_tree(BTree<K, V>& b)
     b.print();
 }
 
+//key를 주었을 때+ valid 한지 검사
 template <class K, class V>
 void verify_finds(vector<pair<K, V>>& data, BTree<K, V>& b)
 {

@@ -76,13 +76,13 @@ V BTree<K, V>::find(const BTreeNode* subroot, const K& key) const
 template <class K, class V>
 void BTree<K, V>::insert(const K& key, const V& value)
 {
-  /* Make the root node if the tree is empty. */
+  /* 트리가 비어 있다면 root node를 생성한다.*/
   if (root == nullptr) {
       root = new BTreeNode(true, order);
   }
   insert(root, DataPair(key, value));
-  /* Increase height by one by tossing up one element from the old
-    * root node. */
+  
+  /* elements의 크기가 order보다 크면 높이를 증가시킨다. */
   if (root->elements.size() >= order) {
       BTreeNode* new_root = new BTreeNode(false, order);
       new_root->children.push_back(root);
@@ -188,19 +188,12 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
 template <class K, class V>
 void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
 {
-  /* There are two cases to consider.
-    * If the subroot is a leaf node and the key doesn't exist subroot, we
-    * should simply insert the pair into subroot.
-    * Otherwise (subroot is not a leaf and the key doesn't exist in subroot)
-    * we need to figure out which child to insert into and call insert on it.
-    * After this call returns we need to check if the child became too large
-    * and thus needs to be split to maintain order.
-    */
-
-  size_t first_larger_idx = insertion_idx(subroot->elements, pair);
-  /* TODO Your code goes here! */
-  if (!subroot->elements.empty() && first_larger_idx < subroot->elements.size()) {
-    if (subroot->elements[first_larger_idx] == pair) return;
+  int node_insert_idx = insertion_idx(subroot->elements, pair);
+ 
+  //element가 비어있거나, elements의 크기보다 인덱스가 작으며,
+  if (!subroot->elements.empty() && node_insert_idx < subroot->elements.size()) {
+    //이미 데이터가 존재한다면 insert 안함
+    if (subroot->elements[node_insert_idx] == pair) return;
   }
   if (subroot->is_leaf) {
     subroot->elements.insert(subroot->elements.begin() + first_larger_idx, pair);

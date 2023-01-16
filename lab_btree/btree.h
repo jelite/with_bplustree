@@ -27,200 +27,202 @@
 template <class K, class V>
 class BTree
 {
-  private:
+    private:
     /**
      * A fancy key-value pair which acts as elements in the BTree.
      * Can be compared with <, >, ==. Additionally they can be compared against
      * a K with <, > and == based on its key.
      * */
-    struct DataPair {
-        K key;
-        V value;
+        struct DataPair {
+            K key;
+            V value;
 
-        /**
-         * Constructs a DataPair from the given key and value.
-         * @param key The key of the pair.
-         * @param value The value of the pair.
-         */
-        DataPair(K key, V value) : key(key), value(value)
-        {
-        }
-
-        /**
-         * Less than operator for a DataPair. The object is less than another
-         * if its key is less than the other's key.
-         * @param rhs The right hand of the < operator.
-         * @return true if the object's key is less than rhs' key, false
-         * otherwise.
-         */
-        inline bool operator<(const DataPair& rhs) const
-        {
-            return this->key < rhs.key;
-        }
-
-        /**
-         * Less than operator for a DataPair and a K.
-         * @param rhs The right hand side (K) of the < operator.
-         * @return true if the object's key is less than rhs, false otherwise.
-         */
-        inline bool operator<(const K& rhs) const
-        {
-            return this->key < rhs;
-        }
-
-        /**
-         * Less than operator for a K and a DataPair.
-         * @param lhs The left hand side (K) of the < operator.
-         * @param rhs The right hand side (DataPair) of the < operator.
-         * @return true if lhs is less than rhs's key, false otherwise.
-         */
-        inline friend bool operator<(const K& lhs, const DataPair& rhs)
-        {
-            return lhs < rhs.key;
-        }
-
-        /**
-         * Greater than operator for a DataPair. DataPair is greater than another
-         * if its key is greater than the other's key.
-         * @param rhs The right hand of the > operator.
-         * @return true if the object's key is greater than rhs's key, false otherwise.
-         */
-        inline bool operator>(const DataPair& rhs) const
-        {
-            return this->key > rhs.key;
-        }
-
-        /**
-         * Greater than operator for a K and a DataPair.
-         * @param lhs The left hand side (K) of the > operator.
-         * @param rhs The right hand side (DataPair) of the > operator.
-         * @return true if lhs is greater than rhs's key, false otherwise.
-         */
-        inline friend bool operator>(const K& lhs, const DataPair& rhs)
-        {
-            return lhs > rhs.key;
-        }
-
-        /**
-         * Greater than operator for a DataPair and a K.
-         * @param rhs The right hand side (K) of the > operator.
-         * @return true if the object's key is greater than rhs, false otherwise.
-         */
-        inline bool operator>(const K& rhs) const
-        {
-            return this->key > rhs;
-        }
-
-        /**
-         * Equality operator for a DataPair. One is equal to another
-         * if its key is equal to the other's key.
-         * @param rhs The right hand of the == operator.
-         * @return true if the object's key is greater than rhs's key, false otherwise.
-         */
-        inline bool operator==(const DataPair& rhs) const
-        {
-            return this->key == rhs.key;
-        }
-
-        /**
-         * Equality operator for a DataPair and a K.
-         * @param rhs The right hand side (K) of the == operator.
-         * @return true if the object's key is equal to rhs, false otherwise.
-         */
-        inline bool operator==(const K& rhs) const
-        {
-            return this->key == rhs;
-        }
-
-        /**
-         * Equality operator for a K and a DataPair.
-         * @param lhs The left hand side (K) of the == operator.
-         * @param rhs The right hand side (DataPair) of the == operator.
-         * @return true if lhs is equal to rhs's key, false otherwise.
-         */
-        inline friend bool operator==(const K& lhs, const DataPair& rhs)
-        {
-            return lhs == rhs.key;
-        }
-    };
-
-    /**
-     * A class for the basic node structure of the BTree. A node contains
-     * two vectors, one with DataPairs representing the data, and one of
-     * BTreeNode*s, representing the node's children.
-     */
-    struct BTreeNode {
-        bool is_leaf;
-        std::vector<DataPair> elements;
-        std::vector<BTreeNode*> children;
-
-        /**
-         * Constructs a BTreeNode. The vectors will reserve to avoid
-         * reallocations.
-         */
-        BTreeNode(bool is_leaf, unsigned int order) : is_leaf(is_leaf)
-        {
-            elements.reserve(order + 1);
-            children.reserve(order + 2);
-        }
-
-        /**
-         * Constructs a BTreeNode based on another. Only copies over
-         * the elements and is_leaf information.
-         */
-        BTreeNode(const BTreeNode& other)
-            : is_leaf(other.is_leaf), elements(other.elements)
-        {
-        }
-
-        /**
-         * Printing operator for a BTreeNode. E.g. a node containing 4, 5, 6
-         * would look like:
-         * <pre>
-         * | 4 | 5 | 6 |
-         * *   *   *   *
-         * </pre>
-         * The stars below the bars represent non-null child pointers. Null
-         * child pointers are represented by an "N". If there are no children
-         * then "no children" is displayed instead.
-         * @param out The ostream to be written to.
-         * @param n The node to be printed.
-         * @return The modified ostream.
-         */
-        inline friend std::ostream& operator<<(std::ostream& out,
-                                               const BTreeNode& n)
-        {
-            std::string node_str;
-            node_str.reserve(2 * (4 * n.elements.size() + 1));
-            for (auto& elem : n.elements) {
-                std::stringstream temp;
-                temp << elem.key;
-                node_str += "| ";
-                node_str += temp.str();
-                node_str += " ";
+            /**
+             * Constructs a DataPair from the given key and value.
+             * @param key The key of the pair.
+             * @param value The value of the pair.
+             */
+            DataPair(K key, V value) : key(key), value(value)
+            {
             }
-            if (!n.elements.empty()) {
-                node_str += "|";
+
+            /**
+             * Less than operator for a DataPair. The object is less than another
+             * if its key is less than the other's key.
+             * @param rhs The right hand of the < operator.
+             * @return true if the object's key is less than rhs' key, false
+             * otherwise.
+             */
+            inline bool operator<(const DataPair& rhs) const
+            {
+                return this->key < rhs.key;
             }
-            node_str += "\n";
-            for (auto& child : n.children) {
-                if (child == nullptr) {
-                    node_str += "N   ";
-                } else {
-                    node_str += "*   ";
+
+            /**
+             * Less than operator for a DataPair and a K.
+             * @param rhs The right hand side (K) of the < operator.
+             * @return true if the object's key is less than rhs, false otherwise.
+             */
+            inline bool operator<(const K& rhs) const
+            {
+                return this->key < rhs;
+            }
+
+            /**
+             * Less than operator for a K and a DataPair.
+             * @param lhs The left hand side (K) of the < operator.
+             * @param rhs The right hand side (DataPair) of the < operator.
+             * @return true if lhs is less than rhs's key, false otherwise.
+             */
+            inline friend bool operator<(const K& lhs, const DataPair& rhs)
+            {
+                return lhs < rhs.key;
+            }
+
+            /**
+             * Greater than operator for a DataPair. DataPair is greater than another
+             * if its key is greater than the other's key.
+             * @param rhs The right hand of the > operator.
+             * @return true if the object's key is greater than rhs's key, false otherwise.
+             */
+            inline bool operator>(const DataPair& rhs) const
+            {
+                return this->key > rhs.key;
+            }
+
+            /**
+             * Greater than operator for a K and a DataPair.
+             * @param lhs The left hand side (K) of the > operator.
+             * @param rhs The right hand side (DataPair) of the > operator.
+             * @return true if lhs is greater than rhs's key, false otherwise.
+             */
+            inline friend bool operator>(const K& lhs, const DataPair& rhs)
+            {
+                return lhs > rhs.key;
+            }
+
+            /**
+             * Greater than operator for a DataPair and a K.
+             * @param rhs The right hand side (K) of the > operator.
+             * @return true if the object's key is greater than rhs, false otherwise.
+             */
+            inline bool operator>(const K& rhs) const
+            {
+                return this->key > rhs;
+            }
+
+            /**
+             * Equality operator for a DataPair. One is equal to another
+             * if its key is equal to the other's key.
+             * @param rhs The right hand of the == operator.
+             * @return true if the object's key is greater than rhs's key, false otherwise.
+             */
+            inline bool operator==(const DataPair& rhs) const
+            {
+                return this->key == rhs.key;
+            }
+
+            /**
+             * Equality operator for a DataPair and a K.
+             * @param rhs The right hand side (K) of the == operator.
+             * @return true if the object's key is equal to rhs, false otherwise.
+             */
+            inline bool operator==(const K& rhs) const
+            {
+                return this->key == rhs;
+            }
+
+            /**
+             * Equality operator for a K and a DataPair.
+             * @param lhs The left hand side (K) of the == operator.
+             * @param rhs The right hand side (DataPair) of the == operator.
+             * @return true if lhs is equal to rhs's key, false otherwise.
+             */
+            inline friend bool operator==(const K& lhs, const DataPair& rhs)
+            {
+                return lhs == rhs.key;
+            }
+        };
+
+        /**
+         * A class for the basic node structure of the BTree. A node contains
+         * two vectors, one with DataPairs representing the data, and one of
+         * BTreeNode*s, representing the node's children.
+         */
+        struct BTreeNode {
+            bool is_leaf;
+            *BTreeNode parent;
+            std::vector<DataPair> elements;
+            std::vector<BTreeNode*> children;
+
+            /**
+             * Constructs a BTreeNode. The vectors will reserve to avoid
+             * reallocations.
+             */
+            BTreeNode(bool is_leaf, unsigned int order) : is_leaf(is_leaf)
+            {
+                parent = nullptr;
+                elements.reserve(order + 1);
+                children.reserve(order + 2);
+            }
+
+            /**
+             * Constructs a BTreeNode based on another. Only copies over
+             * the elements and is_leaf information.
+             */
+            BTreeNode(const BTreeNode& other)
+                : is_leaf(other.is_leaf), elements(other.elements)
+            {
+            }
+
+            /**
+             * Printing operator for a BTreeNode. E.g. a node containing 4, 5, 6
+             * would look like:
+             * <pre>
+             * | 4 | 5 | 6 |
+             * *   *   *   *
+             * </pre>
+             * The stars below the bars represent non-null child pointers. Null
+             * child pointers are represented by an "N". If there are no children
+             * then "no children" is displayed instead.
+             * @param out The ostream to be written to.
+             * @param n The node to be printed.
+             * @return The modified ostream.
+             */
+            inline friend std::ostream& operator<<(std::ostream& out,
+                                                const BTreeNode& n)
+            {
+                std::string node_str;
+                node_str.reserve(2 * (4 * n.elements.size() + 1));
+                for (auto& elem : n.elements) {
+                    std::stringstream temp;
+                    temp << elem.key;
+                    node_str += "| ";
+                    node_str += temp.str();
+                    node_str += " ";
                 }
-            }
-            if (n.children.empty()) {
-                node_str += "no children";
-            }
+                if (!n.elements.empty()) {
+                    node_str += "|";
+                }
+                node_str += "\n";
+                for (auto& child : n.children) {
+                    if (child == nullptr) {
+                        node_str += "N   ";
+                    } else {
+                        node_str += "*   ";
+                    }
+                }
+                if (n.children.empty()) {
+                    node_str += "no children";
+                }
 
-            out << node_str;
-            return out;
-        }
-    };
+                out << node_str;
+                return out;
+            }
+        };
 
-    unsigned int order;
-    BTreeNode* root;
+        unsigned int order;
+        BTreeNode* root;
 
   public:
     /**
