@@ -101,55 +101,49 @@ void BTree<K, V>::insert(const K& key, const V& value)
 template <class K, class V>
 void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
 {
-  /* Assume we are splitting the 3 6 8 child.
-    * We want the following to happen.
-    *     | 2 |
-    *    /     \
-    * | 1 |   | 3 | 6 | 8 |
+  /** 
+    * 다음의 element가 order와 같을 때 child를 split한다.
+    *       |32|
+    *     /      \
+    * |5|8|12|   |44|
     *
     *
-    * Insert a pointer into parent's children which will point to the
-    * new right node. The new right node is empty at this point.
-    *     | 2 |   |
-    *    /     \
-    * | 1 |   | 3 | 6 | 8 |
+    * 왼쪽에 새로운 노드를 생성한다.
+    *      | |32|
+    *     /      \
+    * |5|8|12|   |44|
     *
-    * Insert the mid element from the child into its new position in the
+    * 생성된 왼쪽 노드에 split해야하는 child노드의 key기준으로 가운데 element를 가져온다.
     * parent's elements. At this point the median is still in the child.
-    *     | 2 | 6 |
-    *    /     \
-    * | 1 |   | 3 | 6 | 8 |
+    *      |8|32|
+    *     /      \
+    * |5|8|12|   |44|
     *
-    * Now we want to copy over the elements (and children) to the right
-    * of the child median into the new right node, and make sure the left
-    * node only has the elements (and children) to the left of the child
-    * median.
-    *     | 2 | 6 |
-    *    /   /     \
-    * | 1 | | 3 | | 8 |
+    * elements를 두개로 copy하여 parent와 children을 이어준다.
+    *      |8|32|
+    *     /  |   \
+    * |5|  |12|   |44|
     *
     */
 
-  /* The child we want to split. */
   BTreeNode* child = parent->children[child_idx];
-  /* The "left" node is the old child, the right child is a new node. */
-  BTreeNode* new_left = child;
-  BTreeNode* new_right = new BTreeNode(child->is_leaf, order);
+  BTreeNode* old_child = child;
+  BTreeNode* new_child = new BTreeNode(child->is_leaf, order);
 
-  /* E.g.
-    * | 3 | 6 | 8 |
-    * Mid element is at index (3 - 1) / 2 = 1 .
-    * Mid child (bar) is at index 4 / 2 = 2 .
-    * E.g.
-    * | 2 | 4 |
-    * Mid element is at index (2 - 1) / 2 = 0 .
-    * Mid child (bar) is at index 2 / 2 = 1 .
-    * This definition is to make this BTree act like the visualization
-    * at
+  /* 
+    * 1. element가 짝수인 경우
+    * |5|8|12|
+    * 중간 element : (3-1)/2 = 1 (전체에 1을 뺀 가운데 값)
+    * 중간 자식 포인터 : 4/2 = 2 (자식의 수의 절반)
+    * 
+    * 2. element가 홀수인 경우
+    * |8|32|
+    * 중간 element : (2-1)/2 = 0 (전체에 1을 뺸 가운데 값)
+    * 중간 자식 포인터 :  2/2 = 1 (전체에 절반)
     * https://www.cs.usfca.edu/~galles/visualization/BTree.html
     */
-  size_t mid_elem_idx = (child->elements.size() - 1) / 2;
-  size_t mid_child_idx = child->children.size() / 2;
+  int mid_elem_idx = (child->elements.size() - 1) / 2;
+  int mid_child_idx = child->children.size() / 2;
 
   /* Iterator for where we want to insert the new child. */
   auto child_itr = parent->children.begin() + child_idx + 1;
@@ -164,18 +158,11 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
   parent->elements.insert(elem_itr, child->elements[mid_elem_idx]);
   parent->children.insert(child_itr, new_right);
 
-  // new_right->elements.insert(new_right->elements.begin(), mid_elem_itr + 1,
-  //  child->elements.end());
-  // new_right->children.insert(new_right->children.begin(), mid_child_itr,
-  //   child->children.end());
-  // new_left->elements.erase(mid_elem_itr, new_left->elements.end());
-  // new_left->children.erase(mid_child_itr, new_left->children.end());
+  new_child->elements.assign(mid_elem_itr + 1, child->elements.end());
+  new_child->children.assign(mid_child_itr, child->children.end());
 
-  new_right->elements.assign(mid_elem_itr + 1, child->elements.end());
-  new_right->children.assign(mid_child_itr, child->children.end());
-
-  new_left->elements.assign(child->elements.begin(), mid_elem_itr);
-  new_left->children.assign(child->children.begin(), mid_child_itr);
+  old_child->elements.assign(child->elements.begin(), mid_elem_itr);
+  old_child->children.assign(child->children.begin(), mid_child_itr);
 }
 
 /**
@@ -196,11 +183,11 @@ void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
     if (subroot->elements[node_insert_idx] == pair) return;
   }
   if (subroot->is_leaf) {
-    subroot->elements.insert(subroot->elements.begin() + first_larger_idx, pair);
+    subroot->elements.insert(subroot->elements.begin() + node_insert_idx, pair);
   } else {
-    BTreeNode* child = subroot->children[first_larger_idx];
+    BTreeNode* child = subroot->children[node_insert_idx];
     insert(child, pair);
-    if(child->elements.size() >= order) split_child(subroot, first_larger_idx);
+    if(child->elements.size() >= order) split_child(subroot, node_insert_idx);
   }
 }
 

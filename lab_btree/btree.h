@@ -151,7 +151,7 @@ class BTree
          */
         struct BTreeNode {
             bool is_leaf;
-            *BTreeNode parent;
+            BTreeNode* parent;
             std::vector<DataPair> elements;
             std::vector<BTreeNode*> children;
 
