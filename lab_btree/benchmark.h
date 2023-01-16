@@ -23,28 +23,29 @@
  */
 class Benchmark
 {
-    private:
+  private:
     /**
      * Contains the actual results / benchmark parameter, uses std::chrono.
      */
-    struct BenchmarkResult
-    {
+    struct BenchmarkResult {
         unsigned int n;
         std::chrono::high_resolution_clock::time_point start_time;
         std::chrono::high_resolution_clock::time_point end_time;
         BenchmarkResult(unsigned int n,
                         std::chrono::high_resolution_clock::time_point s,
                         std::chrono::high_resolution_clock::time_point e)
-            : n(n), start_time(s), end_time(e) {}
+            : n(n), start_time(s), end_time(e)
+        {
+        }
     };
 
-    std::vector< BenchmarkResult > results;
+    std::vector<BenchmarkResult> results;
     std::string name;
 
-    public:
-    Benchmark(const std::string& name)
-        : name(name)
-    { /* Nothing. */ }
+  public:
+    Benchmark(const std::string& name) : name(name)
+    {
+    }
 
     size_t add_point(unsigned int n)
     {
@@ -52,7 +53,7 @@ class Benchmark
         results.emplace_back(n, min, min);
         return results.size() - 1;
     }
-    
+
     void start(size_t idx)
     {
         results[idx].start_time = std::chrono::high_resolution_clock::now();
@@ -63,14 +64,13 @@ class Benchmark
         results[idx].end_time = std::chrono::high_resolution_clock::now();
     }
 
-    void write_to_file(std::string out_dir="results")
+    void write_to_file(std::string out_dir = "results")
     {
         using namespace std::chrono;
-        std::string outname = out_dir + "/" +  name + ".csv";
+        std::string outname = out_dir + "/" + name + ".csv";
         std::ofstream out(outname);
         out << "n,elapsed_time (ms)" << std::endl;
-        for(auto& result : results)
-        {
+        for (auto& result : results) {
             auto diff = result.end_time - result.start_time;
             out << result.n << ","
             << duration_cast<milliseconds>(diff).count()

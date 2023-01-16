@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void run_benchmark(unsigned int n, unsigned int step, unsigned int order, 
+void run_benchmark(unsigned int n, unsigned int step, unsigned int order,
                    bool inserts, bool finds, bool rand);
 
 bool stob(const string& s)
@@ -22,7 +22,7 @@ bool stob(const string& s)
     return temp == "1" || temp == "TRUE";
 }
 
-const string USAGE = 
+const string USAGE =
 "USAGE: dict_racer ORDER N STEP RANDOM INSERTS FINDS\n"
 "Runs a race between a BTree< int, int > of order ORDER against an \n"
 "std::map< int, int > for N inserts / finds. Outputs CSVs into \"results\".\n"
@@ -39,123 +39,96 @@ const string USAGE =
 
 int main(int argc, char* argv[])
 {
-    if(argc != 7)
-    {
+    if (argc != 7) {
         cout << USAGE << endl;
         return -1;
-    }
-    else
-    {
-        try
-        {
+    } else {
+        try {
             int order = stoi(argv[1]);
             int n = stoi(argv[2]);
             int step = stoi(argv[3]);
             bool random = stob(argv[4]);
             bool inserts = stob(argv[5]);
             bool finds = stob(argv[6]);
-            if(!inserts && !finds)
-            {
+            if (!inserts && !finds) {
                 cout << "Please specify whether to do inserts / finds." << endl;
-            }
-            else
-            {
+            } else {
                 run_benchmark(n, step, order, inserts, finds, random);
             }
-        }            
-        catch(invalid_argument& e)
-        {
+        } catch (invalid_argument& e) {
             cout << USAGE << endl;
             return -1;
-        }
-        catch(out_of_range& e)
-        {
+        } catch (out_of_range& e) {
             cout << "Number too large to take as input." << endl;
             return -1;
-        }   
+        }
     }
 }
 
 /* TODO Make this generic so that the awful code repetition doesn't have to
  * happen. */
-void run_benchmark(unsigned int n, unsigned int step, unsigned int order, 
+void run_benchmark(unsigned int n, unsigned int step, unsigned int order,
                    bool inserts, bool finds, bool random)
 {
-    if(!inserts && !finds) return;
+    if (!inserts && !finds)
+        return;
 
-    vector< int > data;
+    vector<int> data;
     data.reserve(n);
 
     stringstream bt_benchmark_name;
     stringstream mp_benchmark_name;
     bt_benchmark_name << "BTree(" << order << ")<int,int>_" << n << "_";
     mp_benchmark_name << "std::map<int,int>_" << n << "_";
-    if(inserts && finds)
-    {
+    if (inserts && finds) {
         bt_benchmark_name << "inserts, finds_";
         mp_benchmark_name << "inserts, finds_";
-    }
-    else if(finds)
-    {
+    } else if (finds) {
         bt_benchmark_name << "finds_";
         mp_benchmark_name << "finds_";
-    }    
-    else 
-    {
+    } else {
         bt_benchmark_name << "inserts_";
         mp_benchmark_name << "inserts_";
     }
 
-    if(random)
-    {
+    if (random) {
         srand(time(NULL));
-        for(unsigned int i = 0; i < n; i++)
-        {
+        for (unsigned int i = 0; i < n; i++) {
             int rand_val = rand();
             data.push_back(rand_val);
         }
         bt_benchmark_name << "random";
         mp_benchmark_name << "random";
-    }
-    else
-    {
-        for(unsigned int i = 0; i < n; i++)
-        {
+    } else {
+        for (unsigned int i = 0; i < n; i++) {
             data.push_back(i);
         }
         bt_benchmark_name << "sequential";
         mp_benchmark_name << "sequential";
     }
 
-    BTree< int, int > bt(order);
-    map< int, int> mp;
+    BTree<int, int> bt(order);
+    map<int, int> mp;
     Benchmark b("blah");
     Benchmark bt_b(bt_benchmark_name.str());
     Benchmark mp_b(mp_benchmark_name.str());
 
-    for(unsigned int i = 0; i < n; i += step)
-    {
+    for (unsigned int i = 0; i < n; i += step) {
         size_t curr = bt_b.add_point(i);
-        if(inserts)
-        {
+        if (inserts) {
             bt_b.start(curr);
         }
-        for(unsigned int j = 0; j < i; j++)
-        {
+        for (unsigned int j = 0; j < i; j++) {
             bt.insert(data[j], data[j]);
         }
 
-        if(finds)
-        {
-            if(! inserts)
-            {
+        if (finds) {
+            if (!inserts) {
                 bt_b.start(curr);
             }
-            for(unsigned int j = 0; j < i; j++)
-            {
+            for (unsigned int j = 0; j < i; j++) {
                 int val = bt.find(data[j]);
-                if(val != data[j])
-                {
+                if (val != data[j]) {
                     cout << data[j] << " " << j << endl;
                 }
             }
@@ -165,29 +138,22 @@ void run_benchmark(unsigned int n, unsigned int step, unsigned int order,
     }
     bt_b.write_to_file();
 
-    for(unsigned int i = 0; i < n; i += step)
-    {
+    for (unsigned int i = 0; i < n; i += step) {
         size_t curr = mp_b.add_point(i);
-        if(inserts)
-        {
+        if (inserts) {
             mp_b.start(curr);
         }
-        for(unsigned int j = 0; j < i; j++)
-        {
+        for (unsigned int j = 0; j < i; j++) {
             mp.insert(make_pair(data[j], data[j]));
         }
 
-        if(finds)
-        {
-            if(! inserts)
-            {
+        if (finds) {
+            if (!inserts) {
                 mp_b.start(curr);
             }
-            for(unsigned int j = 0; j < i; j++)
-            {
+            for (unsigned int j = 0; j < i; j++) {
                 int val = mp[data[j]];
-                if(val != data[j])
-                {
+                if (val != data[j]) {
                     cout << data[j] << " " << j << endl;
                 }
             }
@@ -196,5 +162,4 @@ void run_benchmark(unsigned int n, unsigned int step, unsigned int order,
         mp.clear();
     }
     mp_b.write_to_file();
-
 }
