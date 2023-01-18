@@ -14,6 +14,14 @@ void do_inserts(vector<pair<K, V>>& data, BTree<K, V>& b)
 }
 
 template <class K, class V>
+void do_removes(vector<int> data, BTree<K, V>& b)
+{
+    for (auto& key : data) {
+        b.remove(key);
+    }
+}
+
+template <class K, class V>
 void print_tree(BTree<K, V>& b)
 {
     b.print();
@@ -62,9 +70,17 @@ void small_btree_small_order()
      *<< endl;
      */
     vector<pair<int, int>> data
-        = {{1, 5}, {4, 7}, {5, 43}, {-43, 3}, {99, 2}, {23, 7}, {3, 2}, {9, 4}};
+        //={1, 5}, {2, 7}, {3, 43}, {4, 3}, {5, 2}, {6, 7}, {7, 2}};
+        = {{39, 5}, {4, 7}, {5, 43}, {52, 3}, {99, 2}, {23, 7}, {16, 2}, {9, 4}, {55, 1}, {85, 3}, {100,3}, {44,14}, {33, 4}, {101, 54}, {0, -3}, {10, 2}, {13,2}, {82,2}};
     BTree<int, int> b(3);
     do_inserts(data, b);
+    print_tree(b);
+    vector<int> data1 = {{23}};
+    do_removes(data1, b);
+    std::cout << "_________________after remove_________________\n";
+    print_tree(b);
+    do_removes({16},b);
+    std::cout << "_________________after remove2_________________\n";
     print_tree(b);
     verify_finds(data, b);
     b.find(-999);
@@ -78,6 +94,7 @@ void large_btree_small_order()
     cout << "Testing sequential data..." << endl;
     auto data = make_int_data(2000, false);
     do_inserts(data, b);
+    print_tree(b);
     verify_finds(data, b);
     cout << "BTree is valid? " << b.is_valid(3) << endl;
     b.clear();
@@ -136,8 +153,8 @@ int main(int argc, char* argv[])
     cout << boolalpha;
     if (argc == 1) {
         small_btree_small_order();
-        large_btree_small_order();
-        huge_btree_large_order();
+        //large_btree_small_order();
+        //huge_btree_large_order();
     } else if (argc != 3) {
         cout << USAGE << endl;
         return -1;

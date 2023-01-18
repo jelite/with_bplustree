@@ -24,10 +24,12 @@
  * @author Matt Joras
  * @date Winter 2013
  */
+
 template <class K, class V>
 class BTree
 {
-    private:
+    //private:
+    public:
     /**
      * A fancy key-value pair which acts as elements in the BTree.
      * Can be compared with <, >, ==. Additionally they can be compared against
@@ -161,7 +163,6 @@ class BTree
              */
             BTreeNode(bool is_leaf, unsigned int order) : is_leaf(is_leaf)
             {
-                parent = nullptr;
                 elements.reserve(order + 1);
                 children.reserve(order + 2);
             }
@@ -219,12 +220,20 @@ class BTree
                 out << node_str;
                 return out;
             }
+            ~BTreeNode()
+            {
+                elements.clear();
+                children.clear();
+
+                elements.shrink_to_fit();
+                children.shrink_to_fit();
+            }
         };
 
         unsigned int order;
         BTreeNode* root;
 
-  public:
+  //public:
     /**
      * Constructs a default, order 64 BTree.
      */
@@ -284,14 +293,15 @@ class BTree
      */
     V find(const K& key) const;
 
-    /**
-     * prints tree
-    */
+    //remove
+    void remove(K& key);
+
+    //print_tree
     void print();
+    void print_node(BTreeNode* node, int parent_key);
 
-    void print_node(BTreeNode* node);
 
-  private:
+  public:
     /**
      * Private recursive version of the insert function.
      * @param subroot A reference of a pointer to the current BTreeNode.
@@ -308,13 +318,21 @@ class BTree
     V find(const BTreeNode* subroot, const K& key) const;
 
     /**
+     * Private recursive version of the find function.
+     * @param subroot A reference of a pointer to the current BTreeNode.
+     * @param key The key we are looking up.
+     * @return The value (if found), the default V if not.
+     */
+    void remove(BTreeNode* subroot, K& key, std::vector<size_t> before_idxs);
+
+    /**
      * Splits a child node of a BTreeNode. Called if the child became too
      * large. Modifies the parent such that children[child_idx] contains
      * half as many elements as before, and similarly for
      * children[child_idx + 1] (which is a new BTreeNode*).
      * @param parent The parent whose child we are trying to split.
      * @param child_idx The index of the child in its parent's children
-     * vector.
+     * vector
      */
     void split_child(BTreeNode* parent, size_t child_idx);
 
@@ -344,6 +362,12 @@ class BTree
      * @param subroot A reference of a pointer to the current BTreeNode.
     */
     void print(BTreeNode* subroot);
+
+    bool borrow_from_sibilings(BTreeNode* parent, size_t idx, size_t before_idx);
+    bool borrow_from_parent(BTreeNode* parent, size_t idx, size_t before_idx);
+    void remove_and_reconstruct(BTreeNode* parent, size_t idx, std::vector<size_t> before_idxes);
+    void remove_from_leaf(BTreeNode* subroot, size_t idx, std::vector<size_t> before_idxes);
+    void remove_from_inner(BTreeNode* subroot, size_t idx, std::vector<size_t> before_idxes);
 };
 
 template <class T, class C>
@@ -372,7 +396,6 @@ size_t insertion_idx_Helper(const std::vector<T>& elements, int start, int end, 
 template <class T, class C>
 size_t insertion_idx(const std::vector<T>& elements, const C& val)
 {
-    /* TODO Your code goes here! */
     if (elements.size() == 0) return 0;
     if (val < elements[0]) return 0;
     if (val > elements[elements.size() - 1]) return elements.size();
