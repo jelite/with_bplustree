@@ -298,7 +298,7 @@ class BTree
 
     //print_tree
     void print();
-    void print_node(BTreeNode* node, int parent_key);
+    void print_node(BTreeNode* node);
 
 
   public:

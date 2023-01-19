@@ -13,6 +13,7 @@ void do_inserts(vector<pair<K, V>>& data, BTree<K, V>& b)
     }
 }
 
+
 template <class K, class V>
 void do_removes(vector<int> data, BTree<K, V>& b)
 {
@@ -21,13 +22,14 @@ void do_removes(vector<int> data, BTree<K, V>& b)
     }
 }
 
+
 template <class K, class V>
 void print_tree(BTree<K, V>& b)
 {
     b.print();
 }
 
-//key를 주었을 때+ valid 한지 검사
+
 template <class K, class V>
 void verify_finds(vector<pair<K, V>>& data, BTree<K, V>& b)
 {
@@ -39,6 +41,7 @@ void verify_finds(vector<pair<K, V>>& data, BTree<K, V>& b)
         }
     }
 }
+
 
 vector<pair<int, int>> make_int_data(int n, bool random)
 {
@@ -56,36 +59,37 @@ vector<pair<int, int>> make_int_data(int n, bool random)
     return data;
 }
 
+
 void small_btree_small_order()
 {
     cout << __func__ << endl;
-    /*
-     *vector< pair< int, int > > data = { {1, 5}, {4, 7}, {5, 43}, {-43, 3},
-     *                                    {99, 2}, {23, 7} };
-     *BTree< int, int > b(3);
-     *do_inserts(data, b);
-     *verify_finds(data, b);
-     *cout << "BTree is valid? " << b.is_valid(3) << endl;
-     *cout << "Proper value for key not in BTree? " << (0 == b.find(-1)) << endl
-     *<< endl;
-     */
-    vector<pair<int, int>> data
-        //={1, 5}, {2, 7}, {3, 43}, {4, 3}, {5, 2}, {6, 7}, {7, 2}};
-        = {{39, 5}, {4, 7}, {5, 43}, {52, 3}, {99, 2}, {23, 7}, {16, 2}, {9, 4}, {55, 1}, {85, 3}, {100,3}, {44,14}, {33, 4}, {101, 54}, {0, -3}, {10, 2}, {13,2}, {82,2}};
-    BTree<int, int> b(3);
+    vector< pair< int, int > > data = { {1, 5}, {4, 7}, {5, 43}, {-43, 3},
+                                        {99, 2}, {23, 7} };
+    BTree< int, int > b(3);
+    cout << "Testing sequential data..." << endl;
     do_inserts(data, b);
-    print_tree(b);
-    vector<int> data1 = {{23}};
-    do_removes(data1, b);
-    std::cout << "_________________after remove_________________\n";
-    print_tree(b);
-    do_removes({16},b);
-    std::cout << "_________________after remove2_________________\n";
-    print_tree(b);
     verify_finds(data, b);
-    b.find(-999);
-    b.is_valid(3);
+    cout << "BTree is valid? " << b.is_valid(3) << endl;
+    cout << "Proper value for key not in BTree? " << (0 == b.find(-1)) << endl << endl;
+    
+    // vector<pair<int, int>> data
+    //     //={1, 5}, {2, 7}, {3, 43}, {4, 3}, {5, 2}, {6, 7}, {7, 2}};
+    //     = {{39, 5}, {4, 7}, {5, 43}, {52, 3}, {99, 2}, {23, 7}, {16, 2}, {9, 4}, {55, 1}, {85, 3}, {100,3}, {44,14}, {33, 4}, {101, 54}, {0, -3}, {10, 2}, {13,2}, {82,2}};
+    // BTree<int, int> b(3);
+    // do_inserts(data, b);
+    //print_tree(b);
+    //vector<int> data1 = {{23}};
+    //do_removes(data1, b);
+    //std::cout << "_________________after remove_________________\n";
+    //print_tree(b);
+    //do_removes({16},b);
+    //std::cout << "_________________after remove2_________________\n";
+    //print_tree(b);
+    // verify_finds(data, b);
+    // b.find(-999);
+    // b.is_valid(3);
 }
+
 
 void large_btree_small_order()
 {
@@ -94,7 +98,6 @@ void large_btree_small_order()
     cout << "Testing sequential data..." << endl;
     auto data = make_int_data(2000, false);
     do_inserts(data, b);
-    print_tree(b);
     verify_finds(data, b);
     cout << "BTree is valid? " << b.is_valid(3) << endl;
     b.clear();
@@ -105,6 +108,7 @@ void large_btree_small_order()
     verify_finds(data, b);
     cout << "BTree is valid? " << b.is_valid(3) << endl << endl;
 }
+
 
 void huge_btree_large_order()
 {
@@ -124,13 +128,34 @@ void huge_btree_large_order()
     cout << "BTree is valid? " << b.is_valid(64) << endl << endl;
 }
 
+
+void sequential_remove_test()
+{
+    cout << __func__ << endl;
+    vector<pair<int, int>> data
+        = {{39, 5}, {4, 7}, {5, 43}, {52, 3}, {99, 2}, {23, 7}, {16, 2}, 
+        {9, 4}, {55, 1}, {85, 3}, {100,3}, {44,14}, {33, 4}, {101, 54}};
+    BTree<int, int> b(3);
+    do_inserts(data, b);
+    print_tree(b);
+    vector<int> remove_data = {{23}, {16}, {100}, {99}, {101}};
+
+    for(auto key : remove_data)
+    {
+        b.remove(key);
+        std::cout << "\n_________________after remove(" << key <<")_________________\n";
+        print_tree(b);
+    }
+    b.clear();
+}
+
+
 void generic_test(int order, int n)
 {
     BTree<int, int> b(order);
     cout << "Testing sequential data..." << endl;
     auto data = make_int_data(n, false);
     do_inserts(data, b);
-    print_tree(b);
     verify_finds(data, b);
     cout << "BTree is valid? " << b.is_valid(order) << endl;
     b.clear();
@@ -153,8 +178,9 @@ int main(int argc, char* argv[])
     cout << boolalpha;
     if (argc == 1) {
         small_btree_small_order();
-        //large_btree_small_order();
-        //huge_btree_large_order();
+        large_btree_small_order();
+        huge_btree_large_order();
+        sequential_remove_test();
     } else if (argc != 3) {
         cout << USAGE << endl;
         return -1;
